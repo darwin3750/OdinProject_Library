@@ -16,12 +16,10 @@
 }
 
 .modal-content {
-    position: fixed;
-    bottom: 0;
     background-color: #fefefe;
-    width: 100%;
-    -webkit-animation-name: slideIn;
-    -webkit-animation-duration: 0.4s;
-    animation-name: slideIn;
-    animation-duration: 0.4s
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    top: 20%;
   }
