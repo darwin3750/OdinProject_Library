@@ -1,4 +1,4 @@
-let myLibrary = [];
+let myLibrary = ["test1", "test2"];
 
 function Book(title, author) {
   // the constructor...
@@ -12,7 +12,10 @@ function addBookToLibrary(book) {
 }
 
 function viewBooks(){
-    foreach(book in myLibrary){
-        console.log(book);
-    }
+    myLibrary.forEach((val)=>{console.log(val)})
 }
+
+
+//write to HTML
+
+viewBooks();
