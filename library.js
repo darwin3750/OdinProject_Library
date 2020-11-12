@@ -10,3 +10,9 @@ function addBookToLibrary(book) {
   // do stuff here
   myLibrary.push(book);
 }
+
+function viewBooks(){
+    foreach(book in myLibrary){
+        console.log(book);
+    }
+}
