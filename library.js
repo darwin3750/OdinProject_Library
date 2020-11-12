@@ -23,11 +23,9 @@ addBookToLibrary("title", "author", 3, false);
 addBookToLibrary("title", "author", 3, false);
 addBookToLibrary("title", "author", 3, false);
 
-//add button
-
 //put books in table
     let table = document.createElement("table");
-    table.style["border"] = "solid 1px black"; //table style
+    table.classList.add("table"); //table classes
 
     //add table heading
     let headingRow = document.createElement("tr");
@@ -43,7 +41,6 @@ addBookToLibrary("title", "author", 3, false);
         let tr = document.createElement("tr");
         for(let property in myLibrary[i]){
             let td = document.createElement("td");
-            td.style["border"] = "solid 1px black"; //td style
             td.textContent = myLibrary[i][property];
             tr.appendChild(td);
         }
