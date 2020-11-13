@@ -1,30 +1,61 @@
-let myLibrary = [];
-
 function Book(id, title, author, num_of_pages, isRead) {
-  this.id=id;
-  this.title=title;
-  this.author=author;
-  this.num_of_pages=num_of_pages;
-  this.isRead=isRead;
+    this.id=id;
+    this.title=title;
+    this.author=author;
+    this.num_of_pages=num_of_pages;
+    this.isRead=isRead;
+}
+
+function setLibrary(myLibrary){
+    localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
+}
+
+function getLibrary(){
+    return JSON.parse(localStorage.getItem("myLibrary"));
 }
 
 function addBookToLibrary(id, title, author, num_of_pages, isRead) {
-  const new_book = new Book(id, title, author, num_of_pages, isRead);
-  myLibrary.push(new_book);
+    let myLibrary = getLibrary();
+    const new_book = new Book(id, title, author, num_of_pages, isRead);
+    //check if id exists
+    var exists = false;
+    for(var i = 0; i < myLibrary.length; i++) {
+        if (myLibrary[i].id == new_book.id) {
+            exists = true;
+            console.log("ID is already taken.");
+            break;
+        }
+    }if(!exists){
+        myLibrary.push(new_book);
+        setLibrary(myLibrary);
+    }
 }
 
-function viewBooks(){
-    myLibrary.forEach((val)=>{console.log(val)})
+function removeFromLibrary(bookObj){
+    let myLibrary = getLibrary();
+    myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === bookObj.firstChild.textContent)), 1);
+    setLibrary(myLibrary);
 }
 
-//add books
-addBookToLibrary("1", "titleA", "author", 3, false);
-addBookToLibrary("2", "titleB", "author", 3, false);
-addBookToLibrary("3", "titleC", "author", 3, false);
-addBookToLibrary("4", "titleD", "author", 3, false);
+function toggleRead(bookObj){
+    let myLibrary = getLibrary();
+    myLibrary.splice(  
+        myLibrary.indexOf(
+            myLibrary.find(book => book.id === bookObj.firstChild.textContent)
+        ), 
+        1, 
+        new Book(bookObj.childNodes[0].textContent, 
+            bookObj.childNodes[1].textContent, 
+            bookObj.childNodes[2].textContent, 
+            bookObj.childNodes[3].textContent, 
+            (bookObj.childNodes[4].textContent=="false" ? true : false)
+        )
+    );
+    setLibrary(myLibrary);
+}
 
-//put books in table
-function insertBooksTable(){
+function displayBooks_Table(){
+    let myLibrary = getLibrary();
     document.querySelector("#table_section").innerHTML = "";
     let table = document.createElement("table");
     table.classList.add("table"); //table classes
@@ -69,7 +100,6 @@ function insertBooksTable(){
     setListeners();
 }
 
-//Listeners
 function setListeners(){
     let delete_buttons = document.querySelectorAll(".delete_button");
     let read_buttons = document.querySelectorAll(".read_button");
@@ -77,15 +107,23 @@ function setListeners(){
     read_buttons = Array.from(read_buttons);
     for(let i=0; i<delete_buttons.length; i++){
         delete_buttons[i].addEventListener('click', (e)=>{
-            myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === e.target.parentNode.parentNode.firstChild.textContent)), 1)
-            insertBooksTable();
+            bookObj = e.target.parentNode.parentNode;
+            removeFromLibrary(bookObj);
+            displayBooks_Table();
         });
         read_buttons[i].addEventListener('click', (e)=>{
-            myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === (obj=e.target.parentNode.parentNode).firstChild.textContent)), 1, 
-                    new Book(obj.childNodes[0].textContent, obj.childNodes[1].textContent, obj.childNodes[2].textContent, obj.childNodes[3].textContent, (obj.childNodes[4].textContent=="false" ? true : false)));
-            insertBooksTable();
+            bookObj = e.target.parentNode.parentNode;
+            toggleRead(bookObj);
+            displayBooks_Table();
         });
     }
 }
 
-insertBooksTable();
+//add books
+//addBookToLibrary("1", "titleA", "author", 3, false);
+//addBookToLibrary("2", "titleB", "author", 3, false);
+//addBookToLibrary("3", "titleC", "author", 3, false);
+//addBookToLibrary("4", "titleD", "author", 3, false);
+
+//insertBooksTable();
+displayBooks_Table();

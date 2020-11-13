@@ -1,5 +1,6 @@
-//add "add book" modal form
+let myLibrary = getLibrary();
 
+//add "add book" modal form
     //the modal
     const modal = document.createElement("div");
     modal.setAttribute("id", "addBookModal");
@@ -12,6 +13,8 @@
 
     //the form
     const form = document.createElement("form");
+    form.setAttribute("name", "addBookForm");
+    form.setAttribute("onsubmit", 'addBookToLibrary(document.forms["addBookForm"][0].value, document.forms["addBookForm"][1].value, document.forms["addBookForm"][2].value, document.forms["addBookForm"][3].value ,document.forms["addBookForm"][4].value)');
     for(let property in myLibrary[0]){
         let label = document.createElement("label");
         label.setAttribute("for", property);
@@ -31,8 +34,6 @@
     form.appendChild(form_button);
 
     modal_content.appendChild(form);
-
-    //the submit button
 
     //put in html
     document.querySelector("#main").appendChild(modal);
