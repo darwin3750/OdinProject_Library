@@ -1,4 +1,6 @@
-let myLibrary = getLibrary();
+
+
+let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
 
 //add "add book" modal form
     //the modal
@@ -14,6 +16,7 @@ let myLibrary = getLibrary();
     //the form
     const form = document.createElement("form");
     form.setAttribute("name", "addBookForm");
+    form.setAttribute("action", "#");
     form.setAttribute("onsubmit", 'addBookToLibrary(document.forms["addBookForm"][0].value, document.forms["addBookForm"][1].value, document.forms["addBookForm"][2].value, document.forms["addBookForm"][3].value ,document.forms["addBookForm"][4].value)');
     for(let property in myLibrary[0]){
         let label = document.createElement("label");

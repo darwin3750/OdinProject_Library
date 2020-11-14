@@ -7,11 +7,36 @@ function Book(id, title, author, num_of_pages, isRead) {
 }
 
 function setLibrary(myLibrary){
-    localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
+    if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
+        console.log(
+            myLibraryFirebase.add({
+                Book : JSON.stringify(myLibrary.slice(-1).pop())
+            })
+        );
+        
+    } else { // No user is signed in.
+        localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
+    }
 }
 
 function getLibrary(){
+    let myLibrary=[];
+    if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
+        // get from firebase
+        myLibraryFirebase.onSnapshot(querySnapshot => {
+            const books = querySnapshot.docs.map(doc => {
+                return JSON.parse(doc.data().Book)
+            })
+            myLibrary.push(books);
+            //console.log(books);
+            console.log(myLibrary);
+            localStorage.setItem("myLibrary", JSON.stringify(myLibrary[0]));
+        });
+
+        //return myLibrary;
+    }
     return JSON.parse(localStorage.getItem("myLibrary"));
+
 }
 
 function addBookToLibrary(id, title, author, num_of_pages, isRead) {
@@ -25,7 +50,8 @@ function addBookToLibrary(id, title, author, num_of_pages, isRead) {
             console.log("ID is already taken.");
             break;
         }
-    }if(!exists){
+    }
+    if(!exists){
         myLibrary.push(new_book);
         setLibrary(myLibrary);
     }
@@ -128,4 +154,3 @@ if(localStorage.getItem("myLibrary") == null){
     myLibrary.push(new Book("4", "titleD", "author", 3, false));
     localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
 }
-displayBooks_Table();

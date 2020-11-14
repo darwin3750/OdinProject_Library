@@ -27,11 +27,18 @@
   </head>
   <body>
     <div id="main" style="text-align: center;">
+      <section id="user_section" class="w-50" style="display: inline-block;">
+        <h1>Welcome, <span id="current_user"></span></h1>
+        <button class="btn btn-info" id="sign_out_buttton">Sign Out</button>
+        <button class="btn btn-info" id="sign_in_buttton">Sign in with Google</button>
+      </section>
+      <br/>
       <section id="button_section" class="w-50" style="display: inline-block;"></section>
       <br/>
       <section id="table_section" class="w-50" style="display: inline-block;"></section>
     </div>
-    <script src="library.js"></script>
-    <script src="add_book.js"></script>
+    <script src="authenticate.js" defer></script>
+    <script src="library.js" defer></script>
+    <script src="add_book.js" defer></script>
   </body>
 </html>
