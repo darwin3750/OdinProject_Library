@@ -119,11 +119,13 @@ function setListeners(){
     }
 }
 
-//add books
-//addBookToLibrary("1", "titleA", "author", 3, false);
-//addBookToLibrary("2", "titleB", "author", 3, false);
-//addBookToLibrary("3", "titleC", "author", 3, false);
-//addBookToLibrary("4", "titleD", "author", 3, false);
-
-//insertBooksTable();
+//initialize local storage
+if(localStorage.getItem("myLibrary") == null){
+    let myLibrary = [];
+    myLibrary.push(new Book("1", "titleA", "author", 3, false));
+    myLibrary.push(new Book("2", "titleB", "author", 3, false));
+    myLibrary.push(new Book("3", "titleC", "author", 3, false));
+    myLibrary.push(new Book("4", "titleD", "author", 3, false));
+    localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
+}
 displayBooks_Table();
