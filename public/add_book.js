@@ -9,7 +9,9 @@ let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
     modal.classList.add("modal");
 
     const modal_content = document.createElement("div");
-    modal_content.textContent = "Modal Test";
+    const h1 = document.createElement("h1");
+    h1.textContent = "Add Book"
+    modal_content.appendChild(h1);
     modal_content.classList.add("modal-content");
     modal.appendChild(modal_content);
 
@@ -48,6 +50,7 @@ let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
     //form submit button
     const form_button = document.createElement("input");
     form_button.setAttribute("type", "submit");
+    form_button.setAttribute("id", "form_submit");
     form_button.setAttribute("value", "Submit");
     form.appendChild(form_button);
 
@@ -55,6 +58,13 @@ let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
 
     //put in html
     document.querySelector("#main").appendChild(modal);
+
+    //styles
+    for(form_fields of document.querySelectorAll("input")){
+        form_fields.classList.add("form-control");
+    }
+    document.querySelector("#isRead").classList.add("form-control");
+    document.querySelector("#form_submit").classList.add("btn", "btn-success");
 
 //add "add book" button
     const button = document.createElement("button");

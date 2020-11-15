@@ -51,7 +51,8 @@ function addBookToLibrary(title, author, num_of_pages, isRead) {
     }
 }
 
-function removeFromLibrary(bookObj){
+function removeFromLibrary(bookObj, fetchFireStoreCallback){
+    let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
     if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
         let deleteDocument = new Promise((resolve, reject) => {
             try{
@@ -63,16 +64,19 @@ function removeFromLibrary(bookObj){
         });
         deleteDocument.then((message) => {
             console.log(message);
-            fetchFireStore();
+            //quick fix for the non-consistent table update problem
+            //myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === bookObj.firstChild.textContent)), 1);
+            //localStorage.setItem("myLibrary", JSON.stringify(myLibrary)); //*/
+            fetchFireStoreCallback();
         }).catch( (error) => {console.log(error);});
     }else { // No user is signed in.
-        let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
         myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === bookObj.firstChild.textContent)), 1);
         localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
     }
 }
 
-function toggleRead(bookObj){
+function toggleRead(bookObj, fetchFireStoreCallback){
+    let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
     let new_book = new Book(bookObj.childNodes[0].textContent, bookObj.childNodes[1].textContent, 
         bookObj.childNodes[2].textContent, bookObj.childNodes[3].textContent, (bookObj.childNodes[4].textContent=="false" ? true : false));
     if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
@@ -86,10 +90,12 @@ function toggleRead(bookObj){
         });
         updateDocument.then((message) => {
             console.log(message);
-            fetchFireStore();
+            //quick fix for the non-consistent table update problem
+            myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === bookObj.firstChild.textContent)), 1, new_book);
+            localStorage.setItem("myLibrary", JSON.stringify(myLibrary)); //*/
+            fetchFireStoreCallback();
         }).catch( (error) => {console.log(error);});
     }else { // No user is signed in.
-        let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
         myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === bookObj.firstChild.textContent)), 1, new_book);
         localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
     }
@@ -149,12 +155,12 @@ function setListeners(){
     for(let i=0; i<delete_buttons.length; i++){
         delete_buttons[i].addEventListener('click', (e)=>{
             bookObj = e.target.parentNode.parentNode;
-            removeFromLibrary(bookObj);
+            removeFromLibrary(bookObj, fetchFireStore());
             displayBooks_Table();
         });
         read_buttons[i].addEventListener('click', (e)=>{
             bookObj = e.target.parentNode.parentNode;
-            toggleRead(bookObj);
+            toggleRead(bookObj, fetchFireStore());
             displayBooks_Table();
         });
     }

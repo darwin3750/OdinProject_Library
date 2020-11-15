@@ -27,7 +27,7 @@ function fetchFireStore(){
     });
 
     console.log("finished authenticating");
-    p.then(() => {displayBooks_Table()}).catch(() => displayBooks_Table());
+    p.then(() => {displayBooks_Table()});
 }
 
 auth.onAuthStateChanged(user => {
@@ -39,7 +39,7 @@ auth.onAuthStateChanged(user => {
         currentUser.textContent = user.displayName;
         localStorage.setItem("isLoggedIn", true);
         myLibraryFirebase = firebase.firestore().collection("Library_Books");
-        
+
         fetchFireStore();
     }else{
         //signed out
