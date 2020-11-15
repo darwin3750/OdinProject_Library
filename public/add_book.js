@@ -67,19 +67,38 @@ let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
     document.querySelector("#form_submit").classList.add("btn", "btn-success");
 
 //add "add book" button
-    const button = document.createElement("button");
-    button.setAttribute("id", "addBookButton");
-    button.textContent = "Add Book";
-    button.classList.add("btn", "btn-block", "btn-primary", "mb-2", "mt-2") //button classes
+    const ab_button = document.createElement("button");
+    ab_button.setAttribute("id", "addBookButton");
+    ab_button.textContent = "Add Book";
+    ab_button.classList.add("btn", "btn-block", "btn-primary", "mb-2", "mt-2") //button classes
 
     //add to html
-    document.querySelector("#button_section").appendChild(button);
+    document.querySelector("#button_section").appendChild(ab_button);
+
+//add "refresh" button
+    const r_button = document.createElement("button");
+    r_button.setAttribute("id", "refreshButton");
+    r_button.textContent = "Refresh";
+    r_button.classList.add("btn", "btn-block", "btn-secondary", "mb-2", "mt-2") //button classes
+
+    //add to html
+    document.querySelector("#button_section").appendChild(r_button);
 
 //Listeners
     //button click listener to open modal
     const addBookButton = document.querySelector("#addBookButton");
+    const refreshButton = document.querySelector("#refreshButton");
     addBookButton.addEventListener('click', () => {
         document.querySelector("#addBookModal").classList.add("d-block");
+    });
+    refreshButton.addEventListener('click', () => {
+        if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
+            console.log("Refresh: fetching firestore");
+            fetchFireStore();
+        }else{
+            console.log("Refresh: fetching localStorage");
+            displayBooks_Table();
+        }
     });
 
     //window click listener to close modal
