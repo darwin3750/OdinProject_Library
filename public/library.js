@@ -6,89 +6,104 @@ function Book(id, title, author, num_of_pages, isRead) {
     this.isRead=isRead;
 }
 
-function setLibrary(myLibrary){
+function addBookToLibrary(title, author, num_of_pages, isRead) {
     if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
-        console.log(
-            myLibraryFirebase.add({
-                Book : JSON.stringify(myLibrary.slice(-1).pop())
-            })
-        );
-        
-    } else { // No user is signed in.
+        let generateID = new Promise( (resolve, reject) => {
+            try{
+                myLibraryFirebase.orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
+                    if(querySnapshot.docs.length == 0){
+                        console.log("ID was generated successfully (1).");
+                        resolve("1");
+                    }else{
+                        querySnapshot.docs.map(doc => {
+                            console.log("ID was generated successfully (increment).");
+                            resolve(String(Number(doc.id) + 1));
+                        });
+                    }
+                }).catch((error) => {console.log(error)});
+            }catch(error){
+                reject("Error generating an ID.")
+            }
+        });
+        generateID.then( id => {
+            if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
+                const {serverTimestamp} = firebase.firestore.FieldValue;
+                myLibraryFirebase.doc(id).set({ //set document id to book id
+                    uid : firebase.auth().currentUser.uid, //user id
+                    title : title,
+                    author : author,
+                    num_of_pages : Number(num_of_pages),
+                    isRead : Boolean(isRead),
+                    createdAt : serverTimestamp(),
+                });
+                console.log("Book was added successfully.");
+            }
+            fetchFireStore();
+        }).catch( error => {console.log(error)});
+    }else { // No user is signed in.
+        let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
+        let id = Math.max(...myLibrary.map((bookObj) => {return Number(bookObj.id);})) + 1;
+        if(id < 1){id=1;}
+        console.log(id);
+        const new_book = new Book(id, title, author, num_of_pages, isRead);
+        myLibrary.push(new_book);
         localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
     }
 }
 
-function getLibrary(){
-    let myLibrary=[];
-    if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
-        // get from firebase
-        myLibraryFirebase.onSnapshot(querySnapshot => {
-            const books = querySnapshot.docs.map(doc => {
-                return JSON.parse(doc.data().Book)
-            })
-            myLibrary.push(books);
-            //console.log(books);
-            console.log(myLibrary);
-            localStorage.setItem("myLibrary", JSON.stringify(myLibrary[0]));
-        });
-
-        //return myLibrary;
-    }
-    return JSON.parse(localStorage.getItem("myLibrary"));
-
-}
-
-function addBookToLibrary(id, title, author, num_of_pages, isRead) {
-    let myLibrary = getLibrary();
-    const new_book = new Book(id, title, author, num_of_pages, isRead);
-    //check if id exists
-    var exists = false;
-    for(var i = 0; i < myLibrary.length; i++) {
-        if (myLibrary[i].id == new_book.id) {
-            exists = true;
-            console.log("ID is already taken.");
-            break;
-        }
-    }
-    if(!exists){
-        myLibrary.push(new_book);
-        setLibrary(myLibrary);
-    }
-}
-
 function removeFromLibrary(bookObj){
-    let myLibrary = getLibrary();
-    myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === bookObj.firstChild.textContent)), 1);
-    setLibrary(myLibrary);
+    if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
+        let deleteDocument = new Promise((resolve, reject) => {
+            try{
+                myLibraryFirebase.doc(bookObj.firstChild.textContent).delete();
+                resolve("Book was successfully removed from Firestore.");
+            }catch(error){
+                reject("Error removing book from Firestore.")
+            }
+        });
+        deleteDocument.then((message) => {
+            console.log(message);
+            fetchFireStore();
+        }).catch( (error) => {console.log(error);});
+    }else { // No user is signed in.
+        let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
+        myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === bookObj.firstChild.textContent)), 1);
+        localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
+    }
 }
 
 function toggleRead(bookObj){
-    let myLibrary = getLibrary();
-    myLibrary.splice(  
-        myLibrary.indexOf(
-            myLibrary.find(book => book.id === bookObj.firstChild.textContent)
-        ), 
-        1, 
-        new Book(bookObj.childNodes[0].textContent, 
-            bookObj.childNodes[1].textContent, 
-            bookObj.childNodes[2].textContent, 
-            bookObj.childNodes[3].textContent, 
-            (bookObj.childNodes[4].textContent=="false" ? true : false)
-        )
-    );
-    setLibrary(myLibrary);
+    let new_book = new Book(bookObj.childNodes[0].textContent, bookObj.childNodes[1].textContent, 
+        bookObj.childNodes[2].textContent, bookObj.childNodes[3].textContent, (bookObj.childNodes[4].textContent=="false" ? true : false));
+    if (localStorage.getItem("isLoggedIn")=="true") {// User is signed in.
+        let updateDocument = new Promise((resolve, reject) => {
+            try{
+                myLibraryFirebase.doc(bookObj.firstChild.textContent).update({isRead : Boolean(new_book["isRead"])});
+                resolve("Book was successfully updated in Firestore.");
+            }catch(error){
+                reject("Error updating book in Firestore.")
+            }
+        });
+        updateDocument.then((message) => {
+            console.log(message);
+            fetchFireStore();
+        }).catch( (error) => {console.log(error);});
+    }else { // No user is signed in.
+        let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
+        myLibrary.splice(myLibrary.indexOf(myLibrary.find(book => book.id === bookObj.firstChild.textContent)), 1, new_book);
+        localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
+    }
 }
 
 function displayBooks_Table(){
-    let myLibrary = getLibrary();
+    let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
     document.querySelector("#table_section").innerHTML = "";
     let table = document.createElement("table");
     table.classList.add("table"); //table classes
 
     //add table heading
     let headingRow = document.createElement("tr");
-    for(let property in myLibrary[0]){
+    for(let property in new Book(...'')){
         let th = document.createElement("th");
         th.textContent = property;
         headingRow.appendChild(th);
@@ -145,12 +160,3 @@ function setListeners(){
     }
 }
 
-//initialize local storage
-if(localStorage.getItem("myLibrary") == null){
-    let myLibrary = [];
-    myLibrary.push(new Book("1", "titleA", "author", 3, false));
-    myLibrary.push(new Book("2", "titleB", "author", 3, false));
-    myLibrary.push(new Book("3", "titleC", "author", 3, false));
-    myLibrary.push(new Book("4", "titleD", "author", 3, false));
-    localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
-}

@@ -17,14 +17,29 @@ let myLibrary = JSON.parse(localStorage.getItem("myLibrary"));
     const form = document.createElement("form");
     form.setAttribute("name", "addBookForm");
     form.setAttribute("action", "#");
-    form.setAttribute("onsubmit", 'addBookToLibrary(document.forms["addBookForm"][0].value, document.forms["addBookForm"][1].value, document.forms["addBookForm"][2].value, document.forms["addBookForm"][3].value ,document.forms["addBookForm"][4].value)');
-    for(let property in myLibrary[0]){
+    form.setAttribute("onsubmit", 'addBookToLibrary(document.forms["addBookForm"][0].value, document.forms["addBookForm"][1].value, document.forms["addBookForm"][2].value, document.forms["addBookForm"][3].value);displayBooks_Table();');
+    for(let property in new Book(...'')){
+        if (property == "id"){continue;}
         let label = document.createElement("label");
+        let input;
         label.setAttribute("for", property);
         label.textContent = property;
-        let input = document.createElement("input");
-        input.setAttribute("type", "text");
-        input.setAttribute("id", property);
+        if (property == "isRead") {
+            input = document.createElement("select");
+            input.setAttribute("id", property);
+            let option_true = document.createElement("option");
+            option_true.setAttribute("value", true);
+            option_true.textContent = "true";
+            input.appendChild(option_true) ;
+            let option_false = document.createElement("option");
+            option_false.setAttribute("value", false);
+            option_false.textContent = "false";
+            input.appendChild(option_false) ;
+        }else{
+            input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("id", property);
+        }
         form.appendChild(label);
         form.appendChild(document.createElement("br"));
         form.appendChild(input);
